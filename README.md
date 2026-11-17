@@ -516,6 +516,27 @@ Scans skip other apps' sandbox containers (`~/Library/Containers`, `~/Library/Gr
 system files without opening them: opening a file in a protected container blocks while macOS waits
 for a privacy consent prompt.
 
+## Desktop app (this fork)
+
+`gputaskman-app` opens a Task Manager-style window over the same readings, built with
+[pywebview](https://pywebview.flowrl.com/):
+
+- **Processes:** one row per process across all GPUs, with GPU %, busiest engine, dedicated VRAM and
+  shared GPU memory. Click a header to sort (unknown values sort last), type to filter, select a row for
+  details (runtime, what it has loaded, and the LLM weights/KV-cache split when known). Unknown readings
+  show as n/a, never 0, and inferred VRAM is shown in italics and never added to a total.
+- **Performance:** a card per GPU plus CPU and memory, with one-minute history graphs and the device
+  readings (temperature, power, clocks, P-state, PCIe).
+- **End task:** select a process and press Delete or the End task button. It asks first, and refuses
+  system PIDs, itself, WSL rows, and any PID whose name or start time no longer matches the row.
+
+```
+uv tool install "gputaskman[app] @ git+https://github.com/VirajSanghavi007/gputaskman@desktop-app"
+gputaskman-app            # -i 2 to refresh every 2 s, --debug for the web inspector
+```
+
+On Windows pywebview uses Edge WebView2 (built into Windows 11) through pythonnet.
+
 ## What you get
 
 - **Device view:** VRAM usage, GPU activity, memory activity, PCIe traffic, temperature, power,

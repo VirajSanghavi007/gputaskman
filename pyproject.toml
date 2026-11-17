@@ -28,6 +28,12 @@ dependencies = [
 gputaskman = "gputaskman.cli:main"
 gtm = "gputaskman.cli:main"
 
+[project.gui-scripts]
+gputaskman-app = "gputaskman.desktop.main:main"
+
+[project.optional-dependencies]
+app = ["pywebview>=6.2"]
+
 [project.urls]
 Repository = "https://github.com/shanselman/gputaskman"
 Issues = "https://github.com/shanselman/gputaskman/issues"

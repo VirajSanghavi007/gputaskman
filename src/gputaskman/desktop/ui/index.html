@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPU Task Manager</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Pages">
+    <div class="brand" title="GPU Task Manager">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><rect x="7" y="9" width="5" height="6" rx="1"/><path d="M15 9h3M15 12h3M15 15h2M6 18v2M10 18v2M14 18v2M18 18v2"/></svg>
+    </div>
+    <button class="nav active" data-page="processes" title="Processes" aria-label="Processes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      <span>Processes</span>
+    </button>
+    <button class="nav" data-page="performance" title="Performance" aria-label="Performance">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 3 4-7 5 6"/><path d="M3 21h18"/></svg>
+      <span>Performance</span>
+    </button>
+    <div class="rail-spacer"></div>
+    <div class="version" id="version"></div>
+  </nav>
+
+  <main>
+    <header class="topbar">
+      <h1 id="page-title">Processes</h1>
+      <div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+        <input id="search" type="search" placeholder="Type a name, PID or runtime to search" autocomplete="off" spellcheck="false"></div>
+      <button id="end-task" class="btn" disabled title="End the selected process (Delete)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M6.5 17.5l11-11"/></svg>End task</button>
+    </header>
+
+    <section id="processes" class="page">
+      <div class="table-wrap">
+        <table id="proc-table">
+          <thead><tr>
+            <th data-key="name" class="left">Name</th>
+            <th data-key="pid" class="num narrow">PID</th>
+            <th data-key="kind" class="left narrow">Type</th>
+            <th data-key="runtime" class="left">Runtime</th>
+            <th data-key="gpu_pct" class="num metric"><span class="total" id="t-gpu"></span><span>GPU</span></th>
+            <th data-key="engine" class="left">GPU engine</th>
+            <th data-key="vram" class="num metric"><span class="total" id="t-vram"></span><span>Dedicated GPU memory</span></th>
+            <th data-key="shared" class="num metric"><span class="total" id="t-shared"></span><span>Shared GPU memory</span></th>
+          </tr></thead>
+          <tbody id="proc-body"></tbody>
+        </table>
+        <div class="empty" id="proc-empty" hidden>Waiting for the first sample...</div>
+      </div>
+      <aside class="details" id="details" hidden></aside>
+    </section>
+
+    <section id="performance" class="page" hidden>
+      <div class="perf-list" id="perf-list" role="listbox" aria-label="Devices"></div>
+      <div class="perf-detail" id="perf-detail"></div>
+    </section>
+
+    <footer class="status" id="status">Starting...</footer>
+  </main>
+</div>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <h2 id="confirm-title">End process?</h2>
+    <p id="confirm-text"></p>
+    <div class="actions"><button value="cancel" class="btn">Cancel</button><button value="ok" class="btn danger" id="confirm-ok">End process</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

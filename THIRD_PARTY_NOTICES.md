@@ -32,4 +32,5 @@ On Windows the window is drawn by Microsoft Edge WebView2, which is part of Wind
 redistributed by this project.
 
 The desktop app's icons are drawn inline as SVG in `src/gputaskman/desktop/ui/index.html` for this project;
-no icon set or font is bundled (it uses the system's Segoe UI).
+the window and taskbar icon (`src/gputaskman/desktop/icon.ico`) was also drawn for this project.
+No third-party icon set or font is bundled (it uses the system's Segoe UI).

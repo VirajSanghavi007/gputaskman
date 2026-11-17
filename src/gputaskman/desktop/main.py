@@ -11,7 +11,22 @@ import threading
 from pathlib import Path
 
 UI_DIR = Path(__file__).parent / "ui"
+ICON = Path(__file__).parent / "icon.ico"
 TITLE = "GPU Task Manager"
+# Windows groups taskbar buttons by AppUserModelID. Without our own, the window joins pythonw.exe's group and
+# shows Python's icon. A Start Menu shortcut stamped with the same ID shares the button and its pin.
+APP_ID = "VirajSanghavi.GPUTaskManager"
+
+
+def set_app_id() -> bool:
+    """Give this process its own taskbar identity on Windows. Returns whether it was set."""
+    if sys.platform != "win32":
+        return False
+    try:
+        import ctypes
+        return ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID) == 0  # S_OK
+    except Exception:
+        return False
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -50,17 +65,19 @@ def main(argv: list[str] | None = None) -> int:
     from .bridge import Api
     from .sampler import Sampler, list_gpus
 
+    set_app_id()
     gpus = list_gpus()
     sampler = Sampler(gpus, args.interval)
     sampler.start()
     window = webview.create_window(TITLE, url=str(UI_DIR / "index.html"), js_api=Api(sampler, gpus),
                                    width=1180, height=760, min_size=(760, 500))
     result: dict = {}
+    icon = str(ICON) if ICON.is_file() else None
     try:
         if args.selftest is not None:
-            webview.start(run_selftest, (window, args.selftest, result), debug=args.debug)
+            webview.start(run_selftest, (window, args.selftest, result), debug=args.debug, icon=icon)
         else:
-            webview.start(debug=args.debug)
+            webview.start(debug=args.debug, icon=icon)
     finally:
         sampler.stop()
     if args.selftest is not None:

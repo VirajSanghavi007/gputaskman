@@ -609,8 +609,8 @@ class MainTests(unittest.TestCase):
             wv.created = (a, kw)
             return wv.window
 
-        def start(func=None, args=None, debug=False):
-            wv.started = {"func": func, "args": args, "debug": debug}
+        def start(func=None, args=None, debug=False, icon="unset"):
+            wv.started = {"func": func, "args": args, "debug": debug, "icon": icon}
             if func:
                 func(*args)
         wv.create_window, wv.start = create_window, start
@@ -622,8 +622,10 @@ class MainTests(unittest.TestCase):
              mock.patch("gputaskman.desktop.sampler.list_gpus", return_value=["G0"]), \
              mock.patch("gputaskman.desktop.sampler.Sampler", return_value=fake_sampler) as S, \
              mock.patch.object(threading.Event, "wait"), \
+             mock.patch.object(main, "set_app_id") as app_id, \
              mock.patch("builtins.print") as pr:
             code = main.main(argv)
+        app_id.assert_called_once_with()  # before the window exists, so the taskbar button uses our identity
         return code, fake_sampler, S, pr
 
     def test_main_normal(self):
@@ -638,8 +640,44 @@ class MainTests(unittest.TestCase):
         self.assertTrue(kw["url"].endswith("index.html"))
         self.assertEqual((kw["width"], kw["height"], kw["min_size"]), (1180, 760, (760, 500)))
         self.assertIsInstance(kw["js_api"], bridge.Api)
-        self.assertEqual(wv.started, {"func": None, "args": None, "debug": True})
+        self.assertEqual(wv.started, {"func": None, "args": None, "debug": True, "icon": str(main.ICON)})
         pr.assert_not_called()
+
+    def test_main_without_icon_file_passes_none(self):
+        wv = self.fake_webview()
+        with mock.patch.object(main, "ICON", main.ICON.with_name("missing.ico")):
+            self.run_main([], wv)
+        self.assertIsNone(wv.started["icon"])
+
+    def test_icon_is_a_real_ico(self):
+        data = main.ICON.read_bytes()
+        self.assertEqual(data[:4], bytes([0, 0, 1, 0]))  # ICONDIR: reserved 0, type 1 (icon)
+        self.assertGreaterEqual(int.from_bytes(data[4:6], "little"), 1)
+
+    def test_set_app_id_off_windows(self):
+        with mock.patch.object(main.sys, "platform", "linux"):
+            self.assertFalse(main.set_app_id())
+
+    def test_set_app_id_on_windows(self):
+        import ctypes
+        shell32 = mock.Mock()
+        shell32.SetCurrentProcessExplicitAppUserModelID.return_value = 0
+        with mock.patch.object(main.sys, "platform", "win32"), \
+             mock.patch.object(ctypes, "windll", mock.Mock(shell32=shell32), create=True):
+            self.assertTrue(main.set_app_id())
+            shell32.SetCurrentProcessExplicitAppUserModelID.assert_called_once_with(main.APP_ID)
+            shell32.SetCurrentProcessExplicitAppUserModelID.return_value = -2147024809  # E_INVALIDARG
+            self.assertFalse(main.set_app_id())
+            shell32.SetCurrentProcessExplicitAppUserModelID.return_value = 1  # S_FALSE: only S_OK counts
+            self.assertFalse(main.set_app_id())
+            shell32.SetCurrentProcessExplicitAppUserModelID.side_effect = OSError("no shell32")
+            self.assertFalse(main.set_app_id())
+
+    def test_app_id_shape(self):
+        # Windows rule: at most 128 chars, no spaces, dotted Company.Product form
+        self.assertLessEqual(len(main.APP_ID), 128)
+        self.assertNotIn(" ", main.APP_ID)
+        self.assertEqual(main.APP_ID, "VirajSanghavi.GPUTaskManager")
 
     def test_main_selftest_pass_and_fail(self):
         code, smp, _, pr = self.run_main(["--selftest", "1"], self.fake_webview('{"ready": true}'), ticks=4)
@@ -656,6 +694,7 @@ class MainTests(unittest.TestCase):
         self.assertTrue(wv.started["debug"])
         self.assertIs(wv.started["func"], main.run_selftest)
         self.assertEqual(wv.started["args"][1], 1.0)
+        self.assertEqual(wv.started["icon"], str(main.ICON))
 
     def test_main_stops_sampler_when_window_fails(self):
         wv = self.fake_webview()

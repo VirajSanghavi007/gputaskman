@@ -112,6 +112,23 @@ class AppSmoke(unittest.TestCase):
         self.assertEqual(result["rows"], result["processes"])  # empty search: every process is a row
 
 
+@unittest.skipUnless(sys.platform == "win32", "Windows taskbar identity")
+class AppIdIntegration(unittest.TestCase):
+    def test_real_shell32_sets_the_process_app_id(self):
+        code = "\n".join([
+            "import ctypes, ctypes.wintypes as w",
+            "from gputaskman.desktop.main import set_app_id",
+            "print(set_app_id())",
+            "p = w.LPWSTR()",
+            "ctypes.windll.shell32.GetCurrentProcessExplicitAppUserModelID(ctypes.byref(p))",
+            "print(p.value)",
+        ])
+        out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, env=ENV, capture_output=True, text=True,
+                             timeout=60)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertEqual(out.stdout.split(), ["True", "VirajSanghavi.GPUTaskManager"])
+
+
 class CliSmoke(unittest.TestCase):
     def test_help(self):
         out = subprocess.run([sys.executable, "-m", "gputaskman.desktop.main", "--help"],

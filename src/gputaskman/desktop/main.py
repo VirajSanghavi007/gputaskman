@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """gputaskman-app: open the GPU Task Manager window."""
 
 from __future__ import annotations

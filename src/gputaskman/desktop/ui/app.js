@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* GPU Task Manager window. Reads state from the Python side (pywebview js_api) and draws it.
    Provenance: null means unknown and is drawn as "n/a" or a gap, never as 0. Inferred VRAM is marked "~". */
 "use strict";

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Turn `--json` snapshot dicts into what the desktop window draws.
 
 Pure functions only (no sampling, no GUI), so every rule here is unit tested. The provenance rules from

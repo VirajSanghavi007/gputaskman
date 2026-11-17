@@ -4,9 +4,10 @@ version = "0.4.3"
 description = "An htop for what's inside your GPU: per-process VRAM, engine load, and LLM weights / KV cache breakdown"
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 authors = [
-    { name = "Scott Hanselman" }
+    { name = "Scott Hanselman" },
+    { name = "Viraj Sanghavi" },
 ]
 requires-python = ">=3.11"
 classifiers = [
@@ -35,7 +36,8 @@ gputaskman-app = "gputaskman.desktop.main:main"
 app = ["pywebview>=6.2"]
 
 [project.urls]
-Repository = "https://github.com/shanselman/gputaskman"
+Repository = "https://github.com/VirajSanghavi007/gputaskman"
+Upstream = "https://github.com/shanselman/gputaskman"
 Issues = "https://github.com/shanselman/gputaskman/issues"
 
 [dependency-groups]

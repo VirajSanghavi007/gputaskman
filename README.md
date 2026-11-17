@@ -1353,4 +1353,6 @@ downloads are bundled in this repository.
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE). This is a fork of [shanselman/gputaskman](https://github.com/shanselman/gputaskman);
+the original copyright and license are kept, and the desktop app added here is under the same MIT license.
+Licenses of the packages it depends on are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

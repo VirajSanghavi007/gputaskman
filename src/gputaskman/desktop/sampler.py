@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Background sampling for the desktop window: one `record.source` per GPU, read on a fixed interval."""
 
 from __future__ import annotations

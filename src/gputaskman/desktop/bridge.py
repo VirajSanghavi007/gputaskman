@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The object the window's JavaScript calls (pywebview js_api). Public methods only; state stays private."""
 
 from __future__ import annotations
